@@ -405,7 +405,7 @@
                 <h3 class="text-xl font-semibold text-slate-900">Nezávazná poptávka pobytu</h3>
                 <button aria-label="Zavřít" class="text-slate-500 hover:text-slate-800" onclick="toggleModal('rezervace')"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <form id="reservation-form" class="p-6 space-y-4 pb-8" action="mailto:info@autokemp-frenstat.cz?subject=Poptavka%20kempu" method="POST" enctype="text/plain" novalidate>
+            <form id="reservation-form" class="p-6 space-y-4 pb-8" onsubmit="submitReservation(event)" autocomplete="on" novalidate>
                 <div id="reservation-success" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                     <strong class="font-semibold">Odeslano.</strong> Tohle je potvrzeni z webu (mock). Zkontrolujte prosim svuj e-mailovy klient nebo nas kontaktujte primo, pokud se mailto neotevre.
                 </div>
@@ -443,12 +443,12 @@
                 </div>
                 <div class="grid gap-4 md:grid-cols-2">
                     <label class="text-sm text-slate-700 space-y-2">
-                        <span>Jméno a příjmení</span>
-                        <input type="text" name="Jméno" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Jan Novák" required>
+                        <span>Jméno a příjmení *</span>
+                        <input type="text" id="reservation-name" name="name" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Jan Novák" required>
                     </label>
                     <label class="text-sm text-slate-700 space-y-2">
-                        <span>Email</span>
-                        <input type="email" name="Email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="jan@email.cz" required>
+                        <span>Email *</span>
+                        <input type="email" id="reservation-email" name="email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="jan@email.cz" required>
                     </label>
                 </div>
                 <label class="text-sm text-slate-700 space-y-2">
@@ -516,65 +516,116 @@
             }
         });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('reservation-form');
-            if (!form) return;
+        // Form submission handler
+        function submitReservation(event) {
+            event.preventDefault();
 
+            const form = event.target;
             const successBox = document.getElementById('reservation-success');
             const errorBox = document.getElementById('reservation-error');
             const submitBtn = form.querySelector('button[type="submit"]');
 
+            // Hide previous messages
+            if (errorBox) errorBox.classList.add('hidden');
+            if (successBox) successBox.classList.add('hidden');
+
+            // Date validation
             const parseDate = (value) => {
-                // expects "d. m. Y"
                 const parts = value.split('.').map(p => p.trim()).filter(Boolean);
                 if (parts.length !== 3) return null;
                 const [day, month, year] = parts.map(Number);
                 return new Date(year, month - 1, day);
             };
 
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (errorBox) errorBox.classList.add('hidden');
-                if (successBox) successBox.classList.add('hidden');
+            const checkinInput = form.querySelector('#checkin');
+            const checkoutInput = form.querySelector('#checkout');
+            const checkinDate = checkinInput ? parseDate(checkinInput.value) : null;
+            const checkoutDate = checkoutInput ? parseDate(checkoutInput.value) : null;
 
-                const checkinInput = form.querySelector('#checkin');
-                const checkoutInput = form.querySelector('#checkout');
-                const checkinDate = checkinInput ? parseDate(checkinInput.value) : null;
-                const checkoutDate = checkoutInput ? parseDate(checkoutInput.value) : null;
-                if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
-                    if (errorBox) {
-                        errorBox.textContent = 'Datum odjezdu musi byt po datu prijezdu.';
-                        errorBox.classList.remove('hidden');
-                    }
-                    return;
+            if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+                if (errorBox) {
+                    errorBox.textContent = 'Datum odjezdu musí být po datu příjezdu.';
+                    errorBox.classList.remove('hidden');
+                }
+                return;
+            }
+
+            // Disable submit button
+            const originalText = submitBtn.textContent;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Odesílám...';
+                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+
+            // Get form data
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            // Simulate async submission (for mockup)
+            // In production, replace this URL with your actual backend endpoint
+            setTimeout(() => {
+                // Mock successful submission
+                console.log('Form data (mockup):', data);
+
+                if (successBox) {
+                    successBox.innerHTML = '<strong class="font-semibold">Děkujeme!</strong> Vaše poptávka byla odeslána. (Toto je mock - formulář zatím nikam neposílá data)';
+                    successBox.classList.remove('hidden');
                 }
 
-                const formData = new FormData(form);
-                const lines = [];
-                formData.forEach((value, key) => {
-                    lines.push(`${key}: ${value}`);
-                });
-
-                const subject = encodeURIComponent('Poptavka kempu');
-                const body = encodeURIComponent(lines.join('\n'));
-                const mailtoLink = `mailto:info@autokemp-frenstat.cz?subject=${subject}&body=${body}`;
-
-                if (submitBtn) {
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                }
-
-                window.location.href = mailtoLink;
-                if (successBox) successBox.classList.remove('hidden');
+                form.reset();
 
                 setTimeout(() => {
-                    if (submitBtn) {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                    }
-                }, 1500);
+                    if (successBox) successBox.classList.add('hidden');
+                    toggleModal('rezervace');
+                }, 3000);
+
+                // Re-enable button
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                }
+            }, 1000);
+
+            // For production with a real backend, use this instead:
+            /*
+            fetch('YOUR_BACKEND_URL_HERE', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (successBox) {
+                    successBox.innerHTML = '<strong class="font-semibold">Děkujeme!</strong> Vaše poptávka byla úspěšně odeslána.';
+                    successBox.classList.remove('hidden');
+                }
+                form.reset();
+                setTimeout(() => {
+                    toggleModal('rezervace');
+                }, 2000);
+            })
+            .catch(error => {
+                if (errorBox) {
+                    errorBox.textContent = 'Něco se pokazilo. Zkuste to prosím znovu.';
+                    errorBox.classList.remove('hidden');
+                }
+            })
+            .finally(() => {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                }
             });
-        });
+            */
+        }
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
