@@ -1,0 +1,589 @@
+﻿
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autokemp Frenštát | Beskydy, Morava</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%232C5F2D'/%3E%3Cg fill='none' stroke='%23C8F169' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M24 6 12 23h6l-5 7h6l-6 8h22l-6-8h6l-5-7h6z' fill='%234B7F32'/%3E%3Cpath d='M22 28h4v10h-4z' fill='%2367411F'/%3E%3C/g%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        :root {
+            --forest: #1f5c3a;
+            --moss: #8bb174;
+            --sand: #f7f3eb;
+            --stone: #e3ded4;
+            --ink: #0f172a;
+        }
+        * { font-family: 'Outfit', sans-serif; }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        body { background: var(--sand); color: #1f2937; }
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .hero-bg {
+            background-image: linear-gradient(135deg, rgba(23, 64, 46, 0.85), rgba(15, 28, 25, 0.4)), url("main-background.webp");
+            background-size: cover;
+            background-position: center;
+        }
+        .shadow-soft { box-shadow: 0 25px 70px -40px rgba(0, 0, 0, 0.35); }
+        .section-shell { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--forest); border-radius: 999px; }
+        ::-webkit-scrollbar-track { background: #e5e7eb; }
+        .map-hotspot { position: absolute; transform: translate(-50%, -50%); background: transparent; border: 0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+        .map-dot { width: 14px; height: 14px; border-radius: 999px; background: #fff; border: 2px solid var(--forest); box-shadow: 0 8px 20px -8px rgba(0,0,0,0.4); }
+        .map-hotspot .map-ring { position: absolute; width: 26px; height: 26px; border-radius: 999px; border: 2px solid rgba(31,92,58,0.35); animation: pulse 2s infinite; transform: translate(-50%, -50%); top: 50%; left: 50%; pointer-events: none; }
+        .map-tooltip { opacity: 0; transform: translateY(6px); transition: all 0.2s ease; pointer-events: none; background: rgba(255,255,255,0.95); border: 1px solid rgba(15,23,42,0.06); padding: 0.6rem 0.75rem; border-radius: 12px; box-shadow: 0 20px 45px -30px rgba(0,0,0,0.4); min-width: 160px; }
+        .map-tooltip strong { display: block; margin-bottom: 0.1rem; color: var(--forest); }
+        .map-hotspot:hover .map-tooltip, .map-hotspot:focus-visible .map-tooltip, .map-hotspot.open .map-tooltip { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .map-hotspot:focus-visible { outline: 2px solid var(--forest); outline-offset: 4px; }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.85); opacity: 0.8; } 70% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } 100% { opacity: 0; } }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Navigation -->
+    <nav id="nav" class="fixed top-0 inset-x-0 z-50 glass shadow-soft transition-all">
+        <div class="section-shell">
+            <div class="flex items-center justify-between h-16">
+                <a href="#" class="flex items-center gap-3 hover:opacity-80 transition">
+                    <span class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center shadow-lg"><i class="fa-solid fa-campground"></i></span>
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.15em] text-slate-500">Morava, Beskydy</p>
+                        <p class="font-semibold text-lg text-slate-900">Autokemp Frenštát</p>
+                    </div>
+                </a>
+                <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                    <a href="#about" class="hover:text-[var(--forest)]">O kempu</a>
+                    <a href="#map" class="hover:text-[var(--forest)]">Mapa</a>
+                    <a href="#trips" class="hover:text-[var(--forest)]">Cyklo & výlety</a>
+                    <a href="#pricing" class="hover:text-[var(--forest)]">Ceník</a>
+                    <button onclick="toggleModal('rezervace')" class="px-4 py-2 rounded-full bg-[var(--forest)] text-white hover:bg-emerald-800 shadow-md">Rezervovat</button>
+                </div>
+                <button class="md:hidden text-slate-700" aria-label="Otevřít menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 glass">
+            <div class="section-shell py-3 flex flex-col gap-3 text-sm">
+                <a href="#about" class="py-2">O kempu</a>
+                <a href="#map" class="py-2">Mapa</a>
+                <a href="#trips" class="py-2">Cyklo & výlety</a>
+                <a href="#pricing" class="py-2">Ceník</a>
+                <button onclick="toggleModal('rezervace')" class="px-4 py-3 rounded-xl bg-[var(--forest)] text-white font-semibold">Rezervovat pobyt</button>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero -->
+    <header class="relative min-h-screen flex items-center hero-bg text-white">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/60"></div>
+        <div class="section-shell relative z-10 grid gap-8 md:grid-cols-[1.3fr_1fr] items-center pt-20 pb-16">
+            <div class="space-y-6">
+                <p class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 border border-white/30 text-sm font-medium uppercase tracking-[0.2em]">Beskydy - Radhošť</p>
+                <h1 class="text-4xl md:text-6xl leading-tight font-semibold">Klidný kemp u lesa jen 35 minut z Ostravy</h1>
+                <p class="text-lg md:text-xl text-slate-100/90 max-w-2xl">Autokemp Frenštát pod Radhoštěm na soutoku Lubiny a Lomné. Krásný stín stromů, čisté sociální zázemí, aquapark a cyklostezky na dosah.</p>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="toggleModal('rezervace')" class="px-6 py-3 rounded-full bg-white text-[var(--forest)] font-semibold shadow-lg hover:-translate-y-0.5 transition">Nezávazná rezervace</button>
+                    <a href="#map" class="px-6 py-3 rounded-full border border-white text-white font-semibold hover:bg-white/10 transition">Podívat se na areál</a>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-slate-100">
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-bus text-lg"></i><span>300 m od vlakové i bus zastávky</span></div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-bicycle text-lg"></i><span>Cyklostezka k aquaparku a Pustevnám</span></div>
+                    <div class="flex items-center gap-3"><i class="fa-solid fa-tree text-lg"></i><span>Stinné louky pro stany i karavany</span></div>
+                </div>
+            </div>
+            <div class="bg-white/10 border border-white/20 rounded-3xl p-6 md:p-8 shadow-2xl backdrop-blur-sm space-y-6">
+                <h2 class="text-2xl font-semibold">Rychlá představa pobytu</h2>
+                <div class="space-y-4 text-sm text-slate-100/90">
+                    <div class="flex items-start gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-white/15 grid place-items-center text-lg"><i class="fa-solid fa-water"></i></span>
+                        <p><strong>Výběh k řece</strong><br> Louka s přístupem k vodě, stín od borovic a místo na oheň.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-white/15 grid place-items-center text-lg"><i class="fa-solid fa-shower"></i></span>
+                        <p><strong>Čisté sprchy & kuchyňka</strong><br> Pravidelně uklízíme, teplá voda a lednice k dispozici.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-white/15 grid place-items-center text-lg"><i class="fa-solid fa-person-hiking"></i></span>
+                        <p><strong>Výchozí bod výletů</strong><br> Pustevny, Radhošť, Radegast, Hořečky nebo Trojanovice do 20 min.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- About -->
+    <section id="about" class="py-20">
+        <div class="section-shell grid gap-12 md:grid-cols-[1.3fr_1fr] items-center">
+            <div class="space-y-6">
+                <p class="text-sm uppercase tracking-[0.3em] text-[var(--forest)] font-semibold">O kempu</p>
+                <h2 class="text-3xl md:text-4xl font-semibold">Moravský kemp s duší Beskyd</h2>
+                <p class="text-lg text-slate-700">Jsme rodinný autokemp na kraji Frenštátu pod Radhoštěm. Všechny hlavní služby najdete na místě: recepci, nově zrekonstruované sociální zázemí, prostor pro karavany i velkou stanovou louku u řeky. Díky poloze mezi Pustevnami a Hořečkami je to ideální základna pro cyklisty i rodiny.</p>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="p-4 rounded-2xl bg-white shadow-soft border border-[var(--stone)]/70">
+                        <p class="font-semibold text-[var(--forest)]">Check-in 14:00 - Check-out 11:00</p>
+                        <p class="text-sm text-slate-600 mt-2">Pozdní příjezd nám stačí nahlásit předem.</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-white shadow-soft border border-[var(--stone)]/70">
+                        <p class="font-semibold text-[var(--forest)]">Bezpečné zázemí</p>
+                        <p class="text-sm text-slate-600 mt-2">Noční klid od 22:00, wifi u recepce, úschovna kol zdarma.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-3 text-sm text-slate-700">
+                    <span class="px-3 py-2 rounded-full bg-white shadow border border-[var(--stone)]/80 flex items-center gap-2"><i class="fa-solid fa-plug text-[var(--forest)]"></i> Elektrické přípojky</span>
+                    <span class="px-3 py-2 rounded-full bg-white shadow border border-[var(--stone)]/80 flex items-center gap-2"><i class="fa-solid fa-fire text-[var(--forest)]"></i> Oheň & dřevo</span>
+                    <span class="px-3 py-2 rounded-full bg-white shadow border border-[var(--stone)]/80 flex items-center gap-2"><i class="fa-solid fa-dog text-[var(--forest)]"></i> Pet friendly</span>
+                    <span class="px-3 py-2 rounded-full bg-white shadow border border-[var(--stone)]/80 flex items-center gap-2"><i class="fa-solid fa-mug-hot text-[var(--forest)]"></i> Káva u recepce</span>
+                </div>
+            </div>
+            <div class="rounded-3xl overflow-hidden shadow-soft border border-[var(--stone)]/80 bg-white">
+                <img src="beskydy.webp" alt="Louka kempu v Beskydách" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </section>
+    <!-- Map -->
+    <section id="map" class="py-20 bg-white">
+        <div class="section-shell space-y-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-[var(--forest)] font-semibold">Mapa areálu</p>
+                    <h2 class="text-3xl md:text-4xl font-semibold">Jak náš kemp vypadá</h2>
+                    <p class="text-slate-700 mt-3 max-w-2xl">Přehledná kreslená mapa s jednotlivými zónami. Chatky jsou blíž recepci, stany a karavany mají klidnou louku u řeky, dětské hřiště a oheň jsou uprostřed areálu.</p>
+                </div>
+                <div class="flex flex-wrap gap-3 text-sm">
+                    <span class="px-3 py-2 rounded-full bg-[var(--stone)]/60 text-slate-700 border border-[var(--stone)]">Recepce & kavárna</span>
+                    <span class="px-3 py-2 rounded-full bg-[var(--stone)]/60 text-slate-700 border border-[var(--stone)]">Stanová louka u řeky</span>
+                    <span class="px-3 py-2 rounded-full bg-[var(--stone)]/60 text-slate-700 border border-[var(--stone)]">Chatky 4-6 osob</span>
+                    <span class="px-3 py-2 rounded-full bg-[var(--stone)]/60 text-slate-700 border border-[var(--stone)]">Aquapark 200 m</span>
+                </div>
+            </div>
+            <div class="bg-[var(--sand)] rounded-3xl border border-[var(--stone)] shadow-soft overflow-hidden">
+                <div class="relative">
+                    <img src="Gemini_Generated_Image_t1d8okt1d8okt1d8.webp" alt="Kreslená mapa areálu Autokempu Frenštát" class="w-full">
+                    <!-- Interaktivni body -->
+                    <button class="map-hotspot group" style="left:56%; top:30%;" aria-label="Recepce a kavárna">
+                        <span class="map-ring"></span>
+                        <span class="map-dot"></span>
+                        <span class="map-tooltip text-xs text-slate-700">
+                            <strong>Recepce & kavárna</strong>
+                            Check-in, káva a snack do batohu.
+                        </span>
+                    </button>
+                    <button class="map-hotspot group" style="left:42%; top:68%;" aria-label="Stanová louka u řeky">
+                        <span class="map-ring"></span>
+                        <span class="map-dot"></span>
+                        <span class="map-tooltip text-xs text-slate-700">
+                            <strong>Stanová louka</strong>
+                            Stín u vody, nejbližší ohniště a elektřina.
+                        </span>
+                    </button>
+                    <button class="map-hotspot group" style="left:30%; top:46%;" aria-label="Chatky">
+                        <span class="map-ring"></span>
+                        <span class="map-dot"></span>
+                        <span class="map-tooltip text-xs text-slate-700">
+                            <strong>Chatky 4-6 osob</strong>
+                            Klidný pruh u lesa, parkování u každé chatky.
+                        </span>
+                    </button>
+                    <button class="map-hotspot group" style="left:70%; top:54%;" aria-label="Dětské hřiště">
+                        <span class="map-ring"></span>
+                        <span class="map-dot"></span>
+                        <span class="map-tooltip text-xs text-slate-700">
+                            <strong>Dětské hřiště</strong>
+                            Lanová prolézačka, pískoviště, pro nejmenší s dohledem.
+                        </span>
+                    </button>
+                    <button class="map-hotspot group" style="left:82%; top:22%;" aria-label="Aquapark">
+                        <span class="map-ring"></span>
+                        <span class="map-dot"></span>
+                        <span class="map-tooltip text-xs text-slate-700">
+                            <strong>Aquapark</strong>
+                            Bazény a tobogán 200 m od brány kempu.
+                        </span>
+                    </button>
+                </div>
+                <div class="p-6 grid gap-4 md:grid-cols-3 text-sm text-slate-700">
+                    <div class="flex items-start gap-3"><i class="fa-solid fa-map-marker-alt text-[var(--forest)] mt-1"></i><p><strong>Recepce & kavárna</strong><br>Check-in, ranní káva, rychlé občerstvení.</p></div>
+                    <div class="flex items-start gap-3"><i class="fa-solid fa-shower text-[var(--forest)] mt-1"></i><p><strong>Nové sociální zázemí</strong><br>Sprchy s teplou vodou, kuchyňka, pračka.</p></div>
+                    <div class="flex items-start gap-3"><i class="fa-solid fa-fire text-[var(--forest)] mt-1"></i><p><strong>Oheň a gril point</strong><br>Dřevo u recepce, společné posezení pod stromy.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Trips -->
+    <section id="trips" class="py-20">
+        <div class="section-shell space-y-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-[var(--forest)] font-semibold">Cyklo & výlety</p>
+                    <h2 class="text-3xl md:text-4xl font-semibold">Trasy přímo z kempu</h2>
+                    <p class="text-slate-700 mt-3 max-w-2xl">Rodiny i bikeři si u nás vyberou. Cyklostezka podél Lubiny je rovinka pro děti, Pustevny a Radhošť potěší ty, kdo chtějí výhledy.</p>
+                </div>
+                <button onclick="toggleModal('rezervace')" class="px-5 py-3 rounded-full bg-[var(--forest)] text-white font-semibold shadow-soft hover:-translate-y-0.5 transition">Chci termín</button>
+            </div>
+
+            <div class="grid gap-6 md:grid-cols-3">
+                <a href="clanek-cyklostezka.html" class="block bg-white rounded-3xl border border-[var(--stone)] shadow-soft overflow-hidden hover:-translate-y-1 transition">
+                    <img src="cyklo.webp" alt="Rodinná cyklistika u řeky" class="h-48 w-full object-cover">
+                    <div class="p-6 space-y-3">
+                        <div class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-[var(--forest)]"><i class="fa-solid fa-leaf"></i><span>Rodinná rovina</span></div>
+                        <h3 class="text-xl font-semibold">Cyklostezka podél Lubiny</h3>
+                        <p class="text-sm text-slate-600">5 km rovina do Frenštátu a zpět. Hladký asfalt pro kočárek i odrážedla, cestou několik lávek přes řeku.</p>
+                        <div class="flex items-center gap-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-arrows-left-right mr-2"></i>10 km okruh</span>
+                            <span><i class="fa-solid fa-clock mr-2"></i>45 min</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="clanek-pustevny.html" class="block bg-white rounded-3xl border border-[var(--stone)] shadow-soft overflow-hidden hover:-translate-y-1 transition">
+                    <img src="pustevny.webp" alt="Výjezd na Pustevny" class="h-48 w-full object-cover">
+                    <div class="p-6 space-y-3">
+                        <div class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-amber-700"><i class="fa-solid fa-mountain"></i><span>Výzva</span></div>
+                        <h3 class="text-xl font-semibold">Výjezd na Pustevny</h3>
+                        <p class="text-sm text-slate-600">12 km stálého stoupání, možnost půjčit e-bike ve Frenštátu. Odměnou je Radhošť, Jurkovičovy stavby a výhledy.</p>
+                        <div class="flex items-center gap-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-chart-line mr-2"></i>+600 m</span>
+                            <span><i class="fa-solid fa-bus mr-2"></i>Lanovka zpět z Trojanovic</span>
+                        </div>
+                    </div>
+                </a>
+                <a href="clanek-horecky.html" class="block bg-white rounded-3xl border border-[var(--stone)] shadow-soft overflow-hidden hover:-translate-y-1 transition">
+                    <img src="horecky.webp" alt="Lesní pěšina v Beskydách" class="h-48 w-full object-cover">
+                    <div class="p-6 space-y-3">
+                        <div class="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-sky-700"><i class="fa-solid fa-shoe-prints"></i><span>Pěší</span></div>
+                        <h3 class="text-xl font-semibold">Hořečky & beskydské stezky</h3>
+                        <p class="text-sm text-slate-600">Lesní okruh 7 km s altánem a výhledy na Lysou horu. Vhodné pro nordic walking i kočárek do terénu.</p>
+                        <div class="flex items-center gap-4 text-sm text-slate-600">
+                            <span><i class="fa-solid fa-bridge mr-2"></i>Start 10 min od kempu</span>
+                            <span><i class="fa-solid fa-mug-hot mr-2"></i>Občerstvení Řekovice</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Pricing -->
+    <section id="pricing" class="py-20 bg-white">
+        <div class="section-shell space-y-10">
+            <div class="text-center space-y-3">
+                <p class="text-sm uppercase tracking-[0.3em] text-[var(--forest)] font-semibold">Ceník 2025</p>
+                <h2 class="text-3xl md:text-4xl font-semibold">Jednoduché ceny bez překvapení</h2>
+                <p class="text-slate-700 max-w-2xl mx-auto">Za děti účtujeme méně, delší pobyty mají 10% slevu. Při skupinových akcích vám připravíme nabídku na míru.</p>
+            </div>
+            <div class="grid gap-6 md:grid-cols-2">
+                <div class="bg-[var(--sand)] rounded-3xl border border-[var(--stone)] shadow-soft p-8 space-y-5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-[var(--forest)] text-white grid place-items-center"><i class="fa-solid fa-home"></i></span>
+                        <div>
+                            <h3 class="text-2xl font-semibold">Chatky</h3>
+                            <p class="text-sm text-slate-600">Kapacita 4-6 osob, možnost přistýlky.</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Chata standard / noc</span><span class="font-semibold">950 Kč</span></li>
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Chata LUX (WC) / noc</span><span class="font-semibold">1 450 Kč</span></li>
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Přistýlka</span><span class="font-semibold">150 Kč</span></li>
+                        <li class="flex justify-between text-sm text-slate-600"><span>Rekreační poplatek městu</span><span>20 Kč / os.</span></li>
+                    </ul>
+                </div>
+                <div class="bg-[var(--sand)] rounded-3xl border border-[var(--stone)] shadow-soft p-8 space-y-5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-amber-600 text-white grid place-items-center"><i class="fa-solid fa-campground"></i></span>
+                        <div>
+                            <h3 class="text-2xl font-semibold">Stanování & karavany</h3>
+                            <p class="text-sm text-slate-600">Louka u řeky s přípojkami, možnost stínu i slunce.</p>
+                        </div>
+                    </div>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Osoba nad 15 let</span><span class="font-semibold">120 Kč</span></li>
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Dítě (3-15 let)</span><span class="font-semibold">80 Kč</span></li>
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Stan malý / velký</span><span class="font-semibold">100 / 150 Kč</span></li>
+                        <li class="flex justify-between border-b border-[var(--stone)] pb-3"><span>Karavan + přípojka</span><span class="font-semibold">350 Kč</span></li>
+                        <li class="flex justify-between pb-3"><span>Auto</span><span class="font-semibold">100 Kč</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center text-sm text-slate-600">
+                <i class="fa-solid fa-leaf text-[var(--forest)] mr-2"></i>V ceně je vstup na dětské hřiště a úschova kol. Sleva 10 % pro pobyty na 7+ nocí.
+            </div>
+        </div>
+    </section>
+
+    <!-- Access -->
+    <section class="py-20">
+        <div class="section-shell space-y-10">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                <div>
+                    <p class="text-sm uppercase tracking-[0.3em] text-[var(--forest)] font-semibold">Jak se k nám dostat</p>
+                    <h2 class="text-3xl md:text-4xl font-semibold">Snadný příjezd bez stresu</h2>
+                </div>
+                <a href="#contact" class="text-[var(--forest)] font-semibold underline underline-offset-4">Kontakt & navigace</a>
+            </div>
+            <div class="grid gap-6 md:grid-cols-4">
+                <div class="p-5 rounded-2xl bg-white border border-[var(--stone)] shadow-soft space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center"><i class="fa-solid fa-car"></i></div>
+                    <h3 class="font-semibold text-lg">Autem</h3>
+                    <p class="text-sm text-slate-600">Sjezd z D48 ve Frýdku-Místku, poté 20 min na Frenštát. Parkování u recepce i na louce.</p>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-[var(--stone)] shadow-soft space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center"><i class="fa-solid fa-train"></i></div>
+                    <h3 class="font-semibold text-lg">Vlakem</h3>
+                    <p class="text-sm text-slate-600">Vystupte na stanici Frenštát p. R. město - odtud 7 minut pěšky po cyklostezce.</p>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-[var(--stone)] shadow-soft space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center"><i class="fa-solid fa-bus"></i></div>
+                    <h3 class="font-semibold text-lg">Autobusem</h3>
+                    <p class="text-sm text-slate-600">Zastávka "Frenštát, Dolní" přímo u brány kempu. Spoje z Ostravy i Valašska.</p>
+                </div>
+                <div class="p-5 rounded-2xl bg-white border border-[var(--stone)] shadow-soft space-y-2">
+                    <div class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center"><i class="fa-solid fa-bicycle"></i></div>
+                    <h3 class="font-semibold text-lg">Na kole</h3>
+                    <p class="text-sm text-slate-600">Příjezd po cyklostezce 6013 kolem Lubiny. Úschovna kol i servisní stojan zdarma.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Contact -->
+    <footer id="contact" class="bg-[#0f1c19] text-white pt-16 pb-10">
+        <div class="section-shell space-y-10">
+            <div class="grid gap-10 md:grid-cols-[1.2fr_1fr]">
+                <div class="space-y-4">
+                    <p class="text-sm uppercase tracking-[0.3em] text-emerald-200 font-semibold">Kontakt</p>
+                    <h2 class="text-3xl font-semibold">Ozvěte se, rádi poradíme s plánem</h2>
+                    <p class="text-slate-200 max-w-xl">Máte speciální požadavek nebo větší skupinu? Napište nám krátkou zprávu, ozveme se do 24 hodin.</p>
+                    <div class="grid gap-4 sm:grid-cols-2 text-sm">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-map-marker-alt text-emerald-300 mt-1"></i>
+                            <p>Dolní 1806, 744 01 Frenštát p. R.<br><span class="text-emerald-200">49.5483 N, 18.2123 E</span></p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-envelope text-emerald-300 mt-1"></i>
+                            <p>info@autokemp-frenstat.cz<br><span class="text-emerald-200">+420 123 456 789</span></p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="toggleModal('rezervace')" class="px-5 py-3 rounded-full bg-white text-[var(--forest)] font-semibold shadow-lg">Poptat termín</button>
+                        <a href="#map" class="px-5 py-3 rounded-full border border-white/30 text-white font-semibold hover:bg-white/10">Mrknout na mapu</a>
+                    </div>
+                </div>
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-4">
+                    <h3 class="text-xl font-semibold">Rychlé info</h3>
+                    <ul class="space-y-3 text-slate-200 text-sm">
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-300"></i>Sezona: květen - říjen</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-300"></i>Noční klid 22:00-7:00</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-300"></i>Domácí mazlíčci vítáni</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-300"></i>Aquapark 200 m, centrum 10 min pěšky</li>
+                        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-300"></i>Wifi u recepce zdarma</li>
+                    </ul>
+                    <div class="flex gap-3">
+                        <a href="#" aria-label="Instagram" class="w-11 h-11 rounded-full bg-white/10 border border-white/10 grid place-items-center hover:bg-white/20 transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook" class="w-11 h-11 rounded-full bg-white/10 border border-white/10 grid place-items-center hover:bg-white/20 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between text-sm text-slate-300">
+                <p>© 2025 Autokemp Frenštát. Navrženo s respektem k lesům Beskyd.</p>
+                <p class="mt-3 sm:mt-0">Web spravuje tým kempu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Reservation Modal -->
+    <div id="rezervace" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50" aria-hidden="true" onclick="toggleModal('rezervace')"></div>
+        <div class="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 sticky top-0 bg-white z-10">
+                <h3 class="text-xl font-semibold text-slate-900">Nezávazná poptávka pobytu</h3>
+                <button aria-label="Zavřít" class="text-slate-500 hover:text-slate-800" onclick="toggleModal('rezervace')"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <form id="reservation-form" class="p-6 space-y-4 pb-8" action="mailto:info@autokemp-frenstat.cz?subject=Poptavka%20kempu" method="POST" enctype="text/plain" novalidate>
+                <div id="reservation-success" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                    <strong class="font-semibold">Odeslano.</strong> Tohle je potvrzeni z webu (mock). Zkontrolujte prosim svuj e-mailovy klient nebo nas kontaktujte primo, pokud se mailto neotevre.
+                </div>
+                <div id="reservation-error" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="text-sm text-slate-700 space-y-2">
+                        <span>Datum příjezdu</span>
+                        <input type="text" id="checkin" name="Příjezd" autocomplete="off" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Vyberte datum" required>
+                    </label>
+                    <label class="text-sm text-slate-700 space-y-2">
+                        <span>Datum odjezdu</span>
+                        <input type="text" id="checkout" name="Odjezd" autocomplete="off" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Vyberte datum" required>
+                    </label>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="text-sm text-slate-700 space-y-2">
+                        <span>Typ ubytování</span>
+                        <select name="Typ ubytování" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20">
+                            <option>Stanová louka</option>
+                            <option>Karavan + přípojka</option>
+                            <option>Chata standard</option>
+                            <option>Chata LUX (WC)</option>
+                        </select>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="text-sm text-slate-700 space-y-2">
+                            <span>Dospělí</span>
+                            <input type="number" name="Dospělí" min="1" value="2" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20">
+                        </label>
+                        <label class="text-sm text-slate-700 space-y-2">
+                            <span>Děti</span>
+                            <input type="number" name="Děti" min="0" value="0" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20">
+                        </label>
+                    </div>
+                </div>
+                <div class="grid gap-4 md:grid-cols-2">
+                    <label class="text-sm text-slate-700 space-y-2">
+                        <span>Jméno a příjmení</span>
+                        <input type="text" name="Jméno" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Jan Novák" required>
+                    </label>
+                    <label class="text-sm text-slate-700 space-y-2">
+                        <span>Email</span>
+                        <input type="email" name="Email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="jan@email.cz" required>
+                    </label>
+                </div>
+                <label class="text-sm text-slate-700 space-y-2">
+                    <span>Poznámka</span>
+                    <textarea name="Poznámka" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Máme psa, preferujeme stín..."></textarea>
+                </label>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="toggleModal('rezervace')" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50">Zavřít</button>
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-[var(--forest)] text-white font-semibold shadow-soft hover:-translate-y-0.5 transition">Odeslat poptávku</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Sticky nav shadow
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('nav');
+            if (window.scrollY > 30) {
+                nav.classList.add('shadow-md');
+            } else {
+                nav.classList.remove('shadow-md');
+            }
+        });
+
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            flatpickr("#checkin", { minDate: "today", dateFormat: "d. m. Y", locale: { firstDayOfWeek: 1 } });
+            flatpickr("#checkout", { minDate: "today", dateFormat: "d. m. Y", locale: { firstDayOfWeek: 1 } });
+            if (window.lucide) lucide.createIcons();
+
+            // Map hotspots: toggle tooltips on tap/click for mobile
+            const hotspots = Array.from(document.querySelectorAll('.map-hotspot'));
+            hotspots.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = btn.classList.contains('open');
+                    hotspots.forEach(b => b.classList.remove('open'));
+                    if (!isOpen) btn.classList.add('open');
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.map-hotspot')) {
+                    hotspots.forEach(b => b.classList.remove('open'));
+                }
+            });
+
+            // Vlastni text pro required validace
+            const form = document.querySelector('#rezervace form');
+            if (form) {
+                const requiredInputs = form.querySelectorAll('[required]');
+                requiredInputs.forEach(input => {
+                    input.addEventListener('invalid', (e) => {
+                        e.target.setCustomValidity('Vyplňte prosím toto pole.');
+                    });
+                    input.addEventListener('input', (e) => {
+                        e.target.setCustomValidity('');
+                    });
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('reservation-form');
+            if (!form) return;
+
+            const successBox = document.getElementById('reservation-success');
+            const errorBox = document.getElementById('reservation-error');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            const parseDate = (value) => {
+                // expects "d. m. Y"
+                const parts = value.split('.').map(p => p.trim()).filter(Boolean);
+                if (parts.length !== 3) return null;
+                const [day, month, year] = parts.map(Number);
+                return new Date(year, month - 1, day);
+            };
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (errorBox) errorBox.classList.add('hidden');
+                if (successBox) successBox.classList.add('hidden');
+
+                const checkinInput = form.querySelector('#checkin');
+                const checkoutInput = form.querySelector('#checkout');
+                const checkinDate = checkinInput ? parseDate(checkinInput.value) : null;
+                const checkoutDate = checkoutInput ? parseDate(checkoutInput.value) : null;
+                if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
+                    if (errorBox) {
+                        errorBox.textContent = 'Datum odjezdu musi byt po datu prijezdu.';
+                        errorBox.classList.remove('hidden');
+                    }
+                    return;
+                }
+
+                const formData = new FormData(form);
+                const lines = [];
+                formData.forEach((value, key) => {
+                    lines.push(`${key}: ${value}`);
+                });
+
+                const subject = encodeURIComponent('Poptavka kempu');
+                const body = encodeURIComponent(lines.join('\n'));
+                const mailtoLink = `mailto:info@autokemp-frenstat.cz?subject=${subject}&body=${body}`;
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
+                }
+
+                window.location.href = mailtoLink;
+                if (successBox) successBox.classList.remove('hidden');
+
+                setTimeout(() => {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
+                }, 1500);
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('[id^="rezervace"]').forEach(modal => {
+                    if (!modal.classList.contains('hidden')) toggleModal(modal.id);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
