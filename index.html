@@ -75,11 +75,11 @@
         </div>
         <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 glass">
             <div class="section-shell py-3 flex flex-col gap-3 text-sm">
-                <a href="#about" class="py-2">O kempu</a>
-                <a href="#map" class="py-2">Mapa</a>
-                <a href="#trips" class="py-2">Cyklo & výlety</a>
-                <a href="#pricing" class="py-2">Ceník</a>
-                <button onclick="toggleModal('rezervace')" class="px-4 py-3 rounded-xl bg-[var(--forest)] text-white font-semibold">Rezervovat pobyt</button>
+                <a href="#about" class="py-2" onclick="document.getElementById('mobile-menu').classList.add('hidden')">O kempu</a>
+                <a href="#map" class="py-2" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Mapa</a>
+                <a href="#trips" class="py-2" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Cyklo & výlety</a>
+                <a href="#pricing" class="py-2" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Ceník</a>
+                <button onclick="toggleModal('rezervace'); document.getElementById('mobile-menu').classList.add('hidden')" class="px-4 py-3 rounded-xl bg-[var(--forest)] text-white font-semibold">Rezervovat pobyt</button>
             </div>
         </div>
     </nav>
