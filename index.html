@@ -405,14 +405,9 @@
                 <h3 class="text-xl font-semibold text-slate-900">Nezávazná poptávka pobytu</h3>
                 <button aria-label="Zavřít" class="text-slate-500 hover:text-slate-800" onclick="toggleModal('rezervace')"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <form id="reservation-form" class="p-6 space-y-4 pb-8" action="https://api.web3forms.com/submit" method="POST" novalidate>
-                <!-- Web3Forms Access Key - Get yours at https://web3forms.com -->
-                <input type="hidden" name="access_key" value="YOUR_ACCESS_KEY_HERE">
-                <input type="hidden" name="subject" value="Nová poptávka z Autokemp Frenštát">
-                <input type="hidden" name="redirect" value="https://akali-web.github.io/camp-website/?success=true">
-
+            <form id="reservation-form" class="p-6 space-y-4 pb-8" action="mailto:info@autokemp-frenstat.cz?subject=Poptavka%20kempu" method="POST" enctype="text/plain" novalidate>
                 <div id="reservation-success" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                    <strong class="font-semibold">Děkujeme!</strong> Vaše poptávka byla úspěšně odeslána. Ozveme se vám do 24 hodin.
+                    <strong class="font-semibold">Odeslano.</strong> Tohle je potvrzeni z webu (mock). Zkontrolujte prosim svuj e-mailovy klient nebo nas kontaktujte primo, pokud se mailto neotevre.
                 </div>
                 <div id="reservation-error" class="hidden rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
                 <div class="grid gap-4 md:grid-cols-2">
@@ -449,11 +444,11 @@
                 <div class="grid gap-4 md:grid-cols-2">
                     <label class="text-sm text-slate-700 space-y-2">
                         <span>Jméno a příjmení</span>
-                        <input type="text" name="name" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Jan Novák" required>
+                        <input type="text" name="Jméno" autocomplete="name" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="Jan Novák" required>
                     </label>
                     <label class="text-sm text-slate-700 space-y-2">
                         <span>Email</span>
-                        <input type="email" name="email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="jan@email.cz" required>
+                        <input type="email" name="Email" autocomplete="email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-[var(--forest)] focus:ring-2 focus:ring-[var(--forest)]/20" placeholder="jan@email.cz" required>
                     </label>
                 </div>
                 <label class="text-sm text-slate-700 space-y-2">
@@ -537,7 +532,7 @@
                 return new Date(year, month - 1, day);
             };
 
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 if (errorBox) errorBox.classList.add('hidden');
                 if (successBox) successBox.classList.add('hidden');
@@ -548,49 +543,36 @@
                 const checkoutDate = checkoutInput ? parseDate(checkoutInput.value) : null;
                 if (checkinDate && checkoutDate && checkoutDate <= checkinDate) {
                     if (errorBox) {
-                        errorBox.textContent = 'Datum odjezdu musí být po datu příjezdu.';
+                        errorBox.textContent = 'Datum odjezdu musi byt po datu prijezdu.';
                         errorBox.classList.remove('hidden');
                     }
                     return;
                 }
 
+                const formData = new FormData(form);
+                const lines = [];
+                formData.forEach((value, key) => {
+                    lines.push(`${key}: ${value}`);
+                });
+
+                const subject = encodeURIComponent('Poptavka kempu');
+                const body = encodeURIComponent(lines.join('\n'));
+                const mailtoLink = `mailto:info@autokemp-frenstat.cz?subject=${subject}&body=${body}`;
+
                 if (submitBtn) {
                     submitBtn.disabled = true;
-                    submitBtn.textContent = 'Odesílám...';
                     submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                 }
 
-                try {
-                    const formData = new FormData(form);
-                    const response = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        body: formData
-                    });
+                window.location.href = mailtoLink;
+                if (successBox) successBox.classList.remove('hidden');
 
-                    const data = await response.json();
-
-                    if (data.success) {
-                        if (successBox) successBox.classList.remove('hidden');
-                        form.reset();
-                        setTimeout(() => {
-                            toggleModal('rezervace');
-                            if (successBox) successBox.classList.add('hidden');
-                        }, 3000);
-                    } else {
-                        throw new Error(data.message || 'Odeslání se nezdařilo');
-                    }
-                } catch (error) {
-                    if (errorBox) {
-                        errorBox.textContent = 'Něco se pokazilo. Zkuste to prosím znovu nebo nás kontaktujte přímo.';
-                        errorBox.classList.remove('hidden');
-                    }
-                } finally {
+                setTimeout(() => {
                     if (submitBtn) {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Odeslat poptávku';
                         submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                     }
-                }
+                }, 1500);
             });
         });
 
@@ -599,22 +581,6 @@
                 document.querySelectorAll('[id^="rezervace"]').forEach(modal => {
                     if (!modal.classList.contains('hidden')) toggleModal(modal.id);
                 });
-            }
-        });
-
-        // Show success message if redirected back with success parameter
-        document.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('success') === 'true') {
-                const successBox = document.getElementById('reservation-success');
-                if (successBox) {
-                    toggleModal('rezervace');
-                    successBox.classList.remove('hidden');
-                    setTimeout(() => {
-                        toggleModal('rezervace');
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                    }, 3000);
-                }
             }
         });
     </script>
