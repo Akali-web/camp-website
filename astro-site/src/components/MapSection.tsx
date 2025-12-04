@@ -13,30 +13,35 @@ export default function MapSection() {
       y: '30%',
       title: 'Recepce & kavárna',
       desc: 'Check-in, káva a snack do batohu.',
+      position: 'right',
     },
     {
       x: '42%',
       y: '68%',
       title: 'Stanová louka',
       desc: 'Stín u vody, nejbližší ohniště a elektřina.',
+      position: 'right',
     },
     {
       x: '30%',
       y: '46%',
       title: 'Chatky 4-6 osob',
       desc: 'Klidný pruh u lesa, parkování u každé chatky.',
+      position: 'right',
     },
     {
       x: '70%',
       y: '54%',
       title: 'Dětské hřiště',
       desc: 'Lanová prolézačka, pískoviště, pro nejmenší s dohledem.',
+      position: 'left',
     },
     {
       x: '82%',
       y: '22%',
       title: 'Aquapark',
       desc: 'Bazény a tobogán 200 m od brány kempu.',
+      position: 'left',
     },
   ];
 
@@ -64,12 +69,12 @@ export default function MapSection() {
         </motion.div>
 
         <motion.div
-          className="bg-[var(--sand)] rounded-3xl border-2 border-[var(--stone)] shadow-[var(--shadow-heavy)] overflow-hidden"
+          className="bg-[var(--sand)] rounded-3xl border-2 border-[var(--stone)] shadow-[var(--shadow-heavy)] overflow-visible"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 0.2 }}
         >
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-3xl">
             <img
               src={`${import.meta.env.BASE_URL}/images/camp_map.webp`}
               alt="Kreslená mapa areálu Autokempu Frenštát"
@@ -105,11 +110,13 @@ export default function MapSection() {
                 <span className="relative w-4 h-4 rounded-full bg-white border-2 border-[var(--forest)] shadow-lg block"></span>
                 {/* Tooltip */}
                 <motion.span
-                  className="absolute left-6 top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-[var(--stone)] px-4 py-3 rounded-xl shadow-xl min-w-[200px] text-left pointer-events-none"
-                  initial={{ opacity: 0, x: -10 }}
+                  className={`absolute top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-[var(--stone)] px-4 py-3 rounded-xl shadow-xl min-w-[200px] text-left pointer-events-none ${
+                    hotspot.position === 'left' ? 'right-6' : 'left-6'
+                  }`}
+                  initial={{ opacity: 0, x: hotspot.position === 'left' ? 10 : -10 }}
                   animate={{
                     opacity: activeHotspot === index ? 1 : 0,
-                    x: activeHotspot === index ? 0 : -10,
+                    x: activeHotspot === index ? 0 : (hotspot.position === 'left' ? 10 : -10),
                   }}
                   transition={{ duration: 0.2 }}
                 >
