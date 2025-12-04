@@ -69,22 +69,24 @@ export default function MapSection() {
         </motion.div>
 
         <motion.div
-          className="bg-[var(--sand)] rounded-3xl border-2 border-[var(--stone)] shadow-[var(--shadow-heavy)] overflow-visible"
+          className="bg-[var(--sand)] rounded-3xl border-2 border-[var(--stone)] shadow-[var(--shadow-heavy)]"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={isInView ? { opacity: 1, scale: 1 } : {}}
           transition={{ delay: 0.2 }}
         >
-          <div className="relative overflow-hidden rounded-3xl">
-            <img
-              src={`${import.meta.env.BASE_URL}/images/camp_map.webp`}
-              alt="Kreslená mapa areálu Autokempu Frenštát"
-              className="w-full"
-            />
-            {/* Interactive Hotspots */}
+          <div className="relative">
+            <div className="overflow-hidden rounded-t-3xl">
+              <img
+                src={`${import.meta.env.BASE_URL}/images/camp_map.webp`}
+                alt="Kreslená mapa areálu Autokempu Frenštát"
+                className="w-full"
+              />
+            </div>
+            {/* Interactive Hotspots - Outside overflow-hidden */}
             {hotspots.map((hotspot, index) => (
               <motion.button
                 key={index}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 group z-10"
                 style={{ left: hotspot.x, top: hotspot.y }}
                 onMouseEnter={() => setActiveHotspot(index)}
                 onMouseLeave={() => setActiveHotspot(null)}
@@ -110,7 +112,7 @@ export default function MapSection() {
                 <span className="relative w-4 h-4 rounded-full bg-white border-2 border-[var(--forest)] shadow-lg block"></span>
                 {/* Tooltip */}
                 <motion.span
-                  className={`absolute top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-[var(--stone)] px-4 py-3 rounded-xl shadow-xl min-w-[200px] text-left pointer-events-none ${
+                  className={`absolute top-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm border-2 border-[var(--stone)] px-4 py-3 rounded-xl shadow-xl min-w-[200px] text-left pointer-events-none z-20 ${
                     hotspot.position === 'left' ? 'right-6' : 'left-6'
                   }`}
                   initial={{ opacity: 0, x: hotspot.position === 'left' ? 10 : -10 }}

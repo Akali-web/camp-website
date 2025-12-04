@@ -22,7 +22,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
         { icon: 'fa-arrows-left-right', text: '10 km okruh' },
         { icon: 'fa-clock', text: '45 min' },
       ],
-      link: '/cyklostezka',
+      link: `${import.meta.env.BASE_URL}/cyklostezka`,
     },
     {
       img: `${import.meta.env.BASE_URL}/images/pustevny.webp`,
@@ -35,7 +35,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
         { icon: 'fa-chart-line', text: '+600 m' },
         { icon: 'fa-bus', text: 'Lanovka zpět z Trojanovic' },
       ],
-      link: '/pustevny',
+      link: `${import.meta.env.BASE_URL}/pustevny`,
     },
     {
       img: `${import.meta.env.BASE_URL}/images/horecky.webp`,
@@ -48,7 +48,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
         { icon: 'fa-bridge', text: 'Start 10 min od kempu' },
         { icon: 'fa-mug-hot', text: 'Občerstvení Řekovice' },
       ],
-      link: '/horecky',
+      link: `${import.meta.env.BASE_URL}/horecky`,
     },
   ];
 
