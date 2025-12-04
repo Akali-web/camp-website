@@ -1,0 +1,81 @@
+---
+import '../styles/global.css';
+---
+
+<!DOCTYPE html>
+<html lang="cs" class="scroll-smooth">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Cyklostezka podél Lubiny | Autokemp Frenštát</title>
+		<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='10' fill='%232C5F2D'/%3E%3Cg fill='none' stroke='%23C8F169' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M24 6 12 23h6l-5 7h6l-6 8h22l-6-8h6l-5-7h6z' fill='%234B7F32'/%3E%3Cpath d='M22 28h4v10h-4z' fill='%2367411F'/%3E%3C/g%3E%3C/svg%3E" />
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet" />
+	</head>
+	<body class="text-slate-900">
+		<nav class="fixed top-0 inset-x-0 z-50 bg-[var(--sand)]/95 backdrop-blur-sm shadow-lg border-b-2 border-[var(--stone)]">
+			<div class="max-w-7xl mx-auto px-4">
+				<div class="flex items-center justify-between h-16">
+					<a href="/" class="flex items-center gap-3 hover:opacity-80 transition">
+						<span class="w-10 h-10 rounded-xl bg-[var(--forest)] text-white grid place-items-center shadow-lg">
+							<i class="fa-solid fa-campground"></i>
+						</span>
+						<div>
+							<p class="text-xs uppercase tracking-[0.15em] text-slate-500 font-medium">Morava, Beskydy</p>
+							<p class="font-semibold text-lg text-slate-900">Autokemp Frenštát</p>
+						</div>
+					</a>
+					<a href="/#trips" class="px-5 py-2.5 rounded-full bg-[var(--forest)] text-white hover:bg-[var(--forest-dark)] shadow-md text-sm font-bold">
+						Zpět na výlety
+					</a>
+				</div>
+			</div>
+		</nav>
+
+		<main class="pt-24 pb-16">
+			<article class="max-w-3xl mx-auto px-4 space-y-6">
+				<a href="/#trips" class="inline-flex items-center gap-2 text-sm text-[var(--forest)] font-bold hover:underline">
+					<i class="fa-solid fa-arrow-left"></i> Zpět na hlavní stránku
+				</a>
+				<h1 class="text-4xl md:text-5xl font-bold text-slate-900">Cyklostezka podél Lubiny</h1>
+				<img src="/images/cyklo.webp" alt="Cyklostezka podél řeky" class="rounded-2xl shadow-[var(--shadow-heavy)] w-full border-2 border-[var(--stone)]" />
+				<div class="prose prose-lg max-w-none space-y-4 text-slate-700 leading-relaxed">
+					<p class="text-xl">
+						Rodinná rovina z kempu do centra Frenštátu a zpět, celkem přibližně 10 km.
+						Hladký asfalt, mostky přes řeku a nulový automobilový provoz.
+					</p>
+					<ul class="space-y-3 list-none">
+						<li class="flex items-start gap-3">
+							<i class="fa-solid fa-check text-[var(--forest)] mt-1"></i>
+							<span>Doplňte vodu u recepce, po cestě jsou lávky a místa ke koupání.</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fa-solid fa-check text-[var(--forest)] mt-1"></i>
+							<span>Vhodné pro kočárky, odrážedla i in-line brusle.</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fa-solid fa-check text-[var(--forest)] mt-1"></i>
+							<span>Občerstvení: cukrárna na náměstí, zmrzlina a kavárna ve Frenštátu.</span>
+						</li>
+						<li class="flex items-start gap-3">
+							<i class="fa-solid fa-check text-[var(--forest)] mt-1"></i>
+							<span>Bezpečnost: světla večer, helma pro děti doporučena.</span>
+						</li>
+					</ul>
+				</div>
+			</article>
+		</main>
+
+		<footer class="bg-[#0f1c19] text-white py-10">
+			<div class="max-w-7xl mx-auto px-4">
+				<div class="text-center space-y-4">
+					<p class="text-lg font-bold">Autokemp Frenštát pod Radhoštěm</p>
+					<p class="text-slate-300 text-sm">Dolní 1806, 744 01 Frenštát p. R.</p>
+					<a href="/" class="inline-block px-6 py-2.5 rounded-full bg-white text-[var(--forest)] font-bold hover:bg-emerald-50 transition mt-4">
+						Zpět na hlavní stránku
+					</a>
+				</div>
+			</div>
+		</footer>
+	</body>
+</html>
