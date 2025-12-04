@@ -71,7 +71,7 @@ export default function MapSection() {
         >
           <div className="relative">
             <img
-              src="/images/camp_map.webp"
+              src={`${import.meta.env.BASE_URL}/images/camp_map.webp`}
               alt="Kreslená mapa areálu Autokempu Frenštát"
               className="w-full"
             />

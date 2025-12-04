@@ -12,7 +12,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
 
   const trips = [
     {
-      img: '/images/cyklo.webp',
+      img: `${import.meta.env.BASE_URL}/images/cyklo.webp`,
       badge: 'Rodinná rovina',
       badgeColor: 'text-green-700',
       badgeIcon: 'fa-leaf',
@@ -25,7 +25,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
       link: '/cyklostezka',
     },
     {
-      img: '/images/pustevny.webp',
+      img: `${import.meta.env.BASE_URL}/images/pustevny.webp`,
       badge: 'Výzva',
       badgeColor: 'text-amber-700',
       badgeIcon: 'fa-mountain',
@@ -38,7 +38,7 @@ export default function Trips({ onReservationClick }: TripsProps) {
       link: '/pustevny',
     },
     {
-      img: '/images/horecky.webp',
+      img: `${import.meta.env.BASE_URL}/images/horecky.webp`,
       badge: 'Pěší',
       badgeColor: 'text-sky-700',
       badgeIcon: 'fa-shoe-prints',

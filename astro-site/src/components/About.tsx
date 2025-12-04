@@ -128,7 +128,7 @@ export default function About() {
             whileHover={{ scale: 1.02, rotate: -1 }}
           >
             <img
-              src="/images/beskydy.webp"
+              src={`${import.meta.env.BASE_URL}/images/beskydy.webp`}
               alt="Louka kempu v Beskydách"
               className="w-full h-full object-cover"
             />
